@@ -16,37 +16,37 @@ const products = [
   {
     name: "Golden Bangle",
     price: "₹49,999",
-    image: "/images/bangel.png",
+    image: `${import.meta.env.BASE_URL}images/bangel.png`,
   },
   {
     name: "Diamond Earrings",
     price: "₹39,999",
-    image: "/images/earing.png",
+    image: `${import.meta.env.BASE_URL}images/earing.png`,
   },
   {
     name: "Golden Necklace",
     price: "₹89,999",
-    image: "/images/neckles.png",
+    image: `${import.meta.env.BASE_URL}images/neckles.png`,
   },
   {
     name: "Diamond Ring",
     price: "₹29,999",
-    image: "/images/ring.png",
+    image: `${import.meta.env.BASE_URL}images/ring.png`,
   },
   {
     name: "Golden Chain",
     price: "₹59,999",
-    image: "/images/chain.png",
+    image: `${import.meta.env.BASE_URL}images/chain.png`,
   },
   {
     name: "Traditional Jhumka",
     price: "₹29,999",
-    image: "/images/jhumka.png",
+    image: `${import.meta.env.BASE_URL}images/jhumka.png`,
   },
   {
     name: "Crystal Necklace",
     price: "₹99,999",
-    image: "/images/crystal.png",
+    image: `${import.meta.env.BASE_URL}images/crystal.png`,
   },
 ];
 
@@ -65,24 +65,21 @@ export default function App() {
   // =================================
   // AUTOMATIC HOME TO DETAILS
   // =================================
-// =================================
-// AUTOMATIC HOME TO DETAILS
-// =================================
 
-useEffect(() => {
-  if (details) return;
+  useEffect(() => {
+    if (details) return;
 
-  const timer = setTimeout(() => {
-    setSelected(0);
-    setCart(false);
-    setDetails(true);
-  }, 4000);
+    const timer = setTimeout(() => {
+      setSelected(0);
+      setCart(false);
+      setDetails(true);
+    }, 4000);
 
-  return () => clearTimeout(timer);
-}, [details]);
+    return () => clearTimeout(timer);
+  }, [details]);
 
   // =================================
-  // HOME CENTER SPREAD ANIMATION
+  // HOME CARD SPREAD
   // =================================
 
   useLayoutEffect(() => {
@@ -97,6 +94,8 @@ useEffect(() => {
     const centerIndex = Math.floor(cards.length / 2);
 
     const ctx = gsap.context(() => {
+      // Heading animation
+
       gsap.from(".heading", {
         y: -35,
         opacity: 0,
@@ -104,7 +103,7 @@ useEffect(() => {
         ease: "power3.out",
       });
 
-      // ALL CARDS START BEHIND CENTER CARD
+      // Initial position
 
       gsap.set(cards, {
         x: 0,
@@ -112,41 +111,70 @@ useEffect(() => {
         scale: 0.85,
         rotation: 0,
         opacity: 1,
-        zIndex: (i) => 50 - Math.abs(i - centerIndex),
+        zIndex: (i) =>
+          50 - Math.abs(i - centerIndex),
       });
 
-      // CENTER CARD
+      // Center card
 
       gsap.set(cards[centerIndex], {
         scale: 1.12,
         zIndex: 100,
       });
 
-      // ALL CARDS SPREAD TO BOTH SIDES TOGETHER
+      // Spread positions
 
-      const positions = [-510, -340, -170, 0, 170, 340, 510];
-      const verticalPositions = [15, 5, -5, 0, -5, 5, 15];
-      const rotations = [-3, -2, -1, 0, 1, 2, 3];
+      const positions = [
+        -510,
+        -340,
+        -170,
+        0,
+        170,
+        340,
+        510,
+      ];
+
+      const verticalPositions = [
+        15,
+        5,
+        -5,
+        0,
+        -5,
+        5,
+        15,
+      ];
+
+      const rotations = [
+        -3,
+        -2,
+        -1,
+        0,
+        1,
+        2,
+        3,
+      ];
 
       gsap.to(cards, {
         x: (i) => positions[i],
         y: (i) => verticalPositions[i],
-        scale: (i) => i === centerIndex ? 1.12 : 1,
+        scale: (i) =>
+          i === centerIndex ? 1.12 : 1,
         rotation: (i) => rotations[i],
-        zIndex: (i) => i === centerIndex ? 100 : 50 - Math.abs(i - centerIndex),
+        zIndex: (i) =>
+          i === centerIndex
+            ? 100
+            : 50 - Math.abs(i - centerIndex),
         duration: 1.5,
         stagger: 0,
         ease: "power3.out",
       });
-
     }, homeRef);
 
     return () => ctx.revert();
-
   }, [details]);
 
   // =================================
-  // STACK CARD ANIMATION
+  // DETAIL STACK INITIAL ANIMATION
   // =================================
 
   useLayoutEffect(() => {
@@ -163,7 +191,7 @@ useEffect(() => {
     if (!cards.length) return;
 
     const ctx = gsap.context(() => {
-      // INITIAL STACK POSITION
+      // Stack cards
 
       gsap.set(cards, {
         x: (i) => i * 8,
@@ -174,122 +202,144 @@ useEffect(() => {
         zIndex: (i) => cards.length - i,
       });
 
-      gsap.set(info, {
-        opacity: 0,
-        x: 45,
-      });
+      // Selected card comes to front
 
-      // MAIN TIMELINE
-
-      const timeline = gsap.timeline({
-        repeat: 0,
-
-        onComplete: () => {
-          setSelected(0);
-          setCart(false);
-          setDetails(false);
-        },
-      });
-
-      // PRODUCT INFORMATION ENTER
-
-      timeline.to(info, {
-        opacity: 1,
+      gsap.set(cards[selected], {
         x: 0,
-        duration: 0.8,
-        ease: "power3.out",
+        y: 0,
+        rotation: 0,
+        scale: 1,
+        zIndex: 200,
       });
 
-      // EACH CARD COMES TO FRONT
+      // Product info
 
-      cards.forEach((card, index) => {
-        const previousCard = index > 0
-          ? cards[index - 1]
-          : null;
-
-        // CHANGE PRODUCT DETAILS
-
-        timeline.call(() => {
-          setSelected(index);
-          setCart(false);
-        });
-
-        // BRING CURRENT CARD FRONT
-
-        timeline.set(card, {
-          zIndex: 100 + index,
-        });
-
-        // PREVIOUS CARD GOES BACK
-
-        if (previousCard) {
-          timeline.to(
-            previousCard,
-            {
-              x: 28,
-              y: 18,
-              scale: 0.91,
-              rotation: 4,
-              duration: 0.55,
-              ease: "power2.inOut",
-            },
-            "<"
-          );
-
-          timeline.set(previousCard, {
-            zIndex: index,
-          });
-        }
-
-        // CURRENT CARD COMES FORWARD
-
-        timeline.to(card, {
-          x: 0,
-          y: 0,
-          scale: 1,
-          rotation: 0,
+      gsap.fromTo(
+        info,
+        {
+          opacity: 0,
+          x: 45,
+        },
+        {
           opacity: 1,
-          duration: 0.75,
-          ease: "back.out(1.4)",
-        });
-
-        // SHOW PRODUCT
-
-        timeline.to(card, {
-          duration: 1.5,
-        });
-      });
-
-      // LAST CARD STAYS VISIBLE BRIEFLY
-
-      timeline.to({}, {
-        duration: 0.8,
-      });
-
-      // ALL CARDS RETURN TO ORIGINAL STACK
-
-      timeline.to(cards, {
-        x: (i) => i * 8,
-        y: (i) => i * 5,
-        scale: (i) => 1 - i * 0.012,
-        rotation: (i) => i * 1.2,
-        opacity: 1,
-        duration: 0.8,
-        stagger: 0.05,
-        ease: "power2.inOut",
-      });
-
-      // RESTORE STACK ORDER
-
-      timeline.set(cards, {
-        zIndex: (i) => cards.length - i,
-      });
-
+          x: 0,
+          duration: 0.8,
+          ease: "power3.out",
+        }
+      );
     }, detailRef);
 
     return () => ctx.revert();
-
   }, [details]);
+
+  // =================================
+  // CHANGE STACK CARD
+  // =================================
+
+  const changeCard = (newIndex) => {
+    if (!detailRef.current) return;
+
+    const cards = gsap.utils.toArray(
+      detailRef.current.querySelectorAll(".detail-card")
+    );
+
+    if (!cards.length) return;
+
+    const oldIndex = selected;
+
+    if (newIndex === oldIndex) return;
+
+    const oldCard = cards[oldIndex];
+    const newCard = cards[newIndex];
+
+    // Update selected product
+
+    setSelected(newIndex);
+    setCart(false);
+
+    // New card comes front
+
+    gsap.to(newCard, {
+      x: 0,
+      y: 0,
+      scale: 1,
+      rotation: 0,
+      zIndex: 200,
+      duration: 0.7,
+      ease: "back.out(1.4)",
+    });
+
+    // Old card moves back
+
+    gsap.to(oldCard, {
+      x: newIndex > oldIndex ? 28 : -28,
+      y: 18,
+      scale: 0.91,
+      rotation: newIndex > oldIndex ? 4 : -4,
+      zIndex: 50,
+      duration: 0.55,
+      ease: "power2.inOut",
+    });
+
+    // Keep remaining cards stacked
+
+    cards.forEach((card, index) => {
+      if (
+        index !== oldIndex &&
+        index !== newIndex
+      ) {
+        gsap.to(card, {
+          x: index * 8,
+          y: index * 5,
+          scale: 1 - index * 0.012,
+          rotation: index * 1.2,
+          duration: 0.5,
+          ease: "power2.out",
+        });
+      }
+    });
+  };
+
+  // =================================
+  // NEXT CARD
+  // =================================
+
+  const nextCard = () => {
+    const nextIndex =
+      (selected + 1) % products.length;
+
+    changeCard(nextIndex);
+  };
+
+  // =================================
+  // PREVIOUS CARD
+  // =================================
+
+  const previousCard = () => {
+    const previousIndex =
+      (selected - 1 + products.length) %
+      products.length;
+
+    changeCard(previousIndex);
+  };
+
+  // =================================
+  // HOME CARD SELECT
+  // =================================
+
+  const handleHomeSelect = (index) => {
+    setSelected(index);
+    setCart(false);
+    setDetails(true);
+  };
+
+  // =================================
+  // STACK CARD DIRECT SELECT
+  // =================================
+
+  const handleStackSelect = (index) => {
+    changeCard(index);
+  };
 
   // =================================
   // ADD TO CART
@@ -300,6 +350,16 @@ useEffect(() => {
   };
 
   // =================================
+  // BACK
+  // =================================
+
+  const handleBack = () => {
+    setDetails(false);
+    setSelected(0);
+    setCart(false);
+  };
+
+  // =================================
   // JSX
   // =================================
 
@@ -307,7 +367,7 @@ useEffect(() => {
     <main className="app">
 
       {/* =================================
-          FIRST SCREEN - CENTER SPREAD
+          HOME PAGE
       ================================= */}
 
       {!details && (
@@ -325,15 +385,20 @@ useEffect(() => {
 
             {products.map((product, index) => (
               <div
-                className="home-card collection-card"
+                className={`home-card collection-card ${
+                  selected === index
+                    ? "selected-card"
+                    : ""
+                }`}
                 key={index}
+                onClick={() =>
+                  handleHomeSelect(index)
+                }
               >
-
                 <img
                   src={product.image}
                   alt={product.name}
                 />
-
               </div>
             ))}
 
@@ -343,7 +408,7 @@ useEffect(() => {
       )}
 
       {/* =================================
-          SECOND SCREEN - STACK CARDS
+          DETAILS PAGE
       ================================= */}
 
       {details && (
@@ -352,29 +417,34 @@ useEffect(() => {
           ref={detailRef}
         >
 
-          {/* BACK BUTTON - ADDED */}
+          {/* BACK */}
 
           <button
             className="dark-button back-button"
-            onClick={() => {
-              setDetails(false);
-              setSelected(0);
-              setCart(false);
-            }}
+            onClick={handleBack}
           >
             ← Back
           </button>
 
           <div className="details-layout">
 
-            {/* STACK CARDS */}
+            {/* =================================
+                STACK
+            ================================= */}
 
             <div className="stack-area">
 
               {products.map((product, index) => (
                 <div
-                  className="detail-card"
+                  className={`detail-card ${
+                    selected === index
+                      ? "selected-card"
+                      : ""
+                  }`}
                   key={index}
+                  onClick={() =>
+                    handleStackSelect(index)
+                  }
                 >
 
                   <img
@@ -385,11 +455,38 @@ useEffect(() => {
                 </div>
               ))}
 
+              {/* =================================
+                  ARROWS
+              ================================= */}
+
+              <button
+                className="stack-arrow stack-arrow-left"
+                onClick={previousCard}
+                aria-label="Previous product"
+              >
+                ←
+              </button>
+
+              <button
+                className="stack-arrow stack-arrow-right"
+                onClick={nextCard}
+                aria-label="Next product"
+              >
+                →
+              </button>
+
             </div>
 
-            {/* PRODUCT INFORMATION */}
+            {/* =================================
+                PRODUCT INFO
+            ================================= */}
 
             <div className="product-info">
+
+              <p className="product-number">
+                {String(selected + 1).padStart(2, "0")} /{" "}
+                {String(products.length).padStart(2, "0")}
+              </p>
 
               <h2>
                 {products[selected].name}
